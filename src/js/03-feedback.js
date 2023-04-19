@@ -1,35 +1,35 @@
 import throttle from 'lodash.throttle';
 
-const CONTACT_FROM_LS_KEY = 'feedback-form-state';
-let dataSet = {};
-
-const params = {
-  form: document.querySelector('.feedback-form'),
-  input: document.querySelector('.feedback-form input'),
-  textarea: document.querySelector('.feedback-form textarea'),
+const formEl = document.querySelector('.feedback-form');
+const refs = {
+  email: document.querySelector('input'),
+  message: document.querySelector('textarea'),
 };
 
-function handleFormSubmit(event) {
+const FEEDBACK_FORM = 'feedback-form-state';
+
+formEl.addEventListener('input', throttle(handleFormInput, 500));
+formEl.addEventListener('submit', handlerFormSubmit);
+
+let formData = {};
+
+function handleFormInput(event) {
+  formData[event.target.name] = event.target.value;
+  localStorage.setItem(FEEDBACK_FORM, JSON.stringify(formData));
+}
+
+function handlerFormSubmit(event) {
   event.preventDefault();
-  event.target.reset();
-  localStorage.removeItem(CONTACT_FROM_LS_KEY);
-  dataSet = {};
-  console.log(dataSet);
+  console.log(JSON.parse(localStorage.getItem(FEEDBACK_FORM)));
+  localStorage.removeItem(FEEDBACK_FORM);
+  formData = {};
+  formEl.reset();
 }
 
-function formInput({ target }) {
-  dataSet[target.name] = target.value;
-  localStorage.setItem(CONTACT_FROM_LS_KEY, JSON.stringify(dataSet));
+function populateTextarea() {
+  let savedMassage = JSON.parse(localStorage.getItem(FEEDBACK_FORM)) || {};
+  formData = savedMassage;
+  refs.message.value = savedMassage.message || '';
+  refs.email.value = savedMassage.email || '';
 }
-
-function outputText() {
-  const previousMessage =
-    JSON.parse(localStorage.getItem(CONTACT_FROM_LS_KEY)) || {};
-  dataSet = previousMessage;
-  params.input.value = previousMessage.email || '';
-  params.textarea.value = previousMessage.message || '';
-}
-
-params.form.addEventListener('submit', handleFormSubmit);
-params.form.addEventListener('input', throttle(formInput, 500));
-outputText();
+populateTextarea();
