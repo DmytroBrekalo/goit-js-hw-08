@@ -1,5 +1,4 @@
 import throttle from 'lodash.throttle';
-// import localeStorageApi from './localestorage'
 
 const CONTACT_FROM_LS_KEY = 'feedback-form-state';
 let dataSet = {};
